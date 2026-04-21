@@ -1,5 +1,8 @@
 import MessageThread from "@/components/messages/MessageThread";
-import { getMessages, markConversationReadAction } from "@/lib/actions/messages";
+import {
+  getMessages,
+  markConversationReadAction,
+} from "@/lib/actions/messages";
 import { requireOnboardedUserProfile } from "@/lib/actions/users";
 import { Conversation } from "@/models/conversation.model";
 import { serializeUser } from "@/lib/actions/users";
@@ -41,13 +44,18 @@ export default async function ConversationPage({
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6 flex items-center gap-3">
-        <Link href="/messages" className="rounded-xl p-2 text-white/30 hover:bg-white/[0.05] hover:text-white/60 transition-all duration-300">
-          <ArrowLeft size={20} />
+      <div className="mb-5 flex items-center gap-3">
+        <Link
+          href="/messages"
+          className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors press"
+        >
+          <ArrowLeft size={17} strokeWidth={2} />
         </Link>
         <div>
-          <h1 className="font-display text-lg font-bold text-foreground">{otherUserDTO.name}</h1>
-          <p className="text-xs text-white/30">@{otherUserDTO.handle}</p>
+          <h1 className="text-[18px] font-semibold tracking-tight text-foreground">
+            {otherUserDTO.name}
+          </h1>
+          <p className="text-xs text-muted-foreground">@{otherUserDTO.handle}</p>
         </div>
       </div>
       <MessageThread

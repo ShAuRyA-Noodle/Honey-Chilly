@@ -17,7 +17,7 @@ export default function SearchResults({ users }: { users: UserDTO[] }) {
       try {
         await toggleFollowAction(userId);
         router.refresh();
-        toast.success("Updated.");
+        toast.success("Updated");
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed.");
       }
@@ -26,35 +26,37 @@ export default function SearchResults({ users }: { users: UserDTO[] }) {
 
   if (users.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-10 text-center">
-        <p className="text-sm text-white/50">No people found.</p>
+      <div className="surface-elevated p-8 text-center">
+        <p className="text-[13px] text-muted-foreground">No people found.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3">
       {users.map((user) => (
-        <div
-          key={user.id}
-          className="flex items-center gap-3 glass-panel rounded-2xl p-5 hover-card-glow transition-all duration-500"
-        >
+        <div key={user.id} className="surface-elevated flex items-center gap-3 p-4">
           <ProfilePhoto src={user.avatarUrl} name={user.name} />
           <div className="min-w-0 flex-1">
-            <Link href={`/profile/${user.handle}`} className="text-sm font-bold text-foreground hover:text-[#2FA4D7] transition-colors duration-300">
+            <Link
+              href={`/profile/${user.handle}`}
+              className="text-[14px] font-semibold text-foreground hover:text-primary transition-colors"
+            >
               {user.name}
             </Link>
-            <p className="truncate text-xs text-white/55">
+            <p className="truncate text-[12.5px] text-muted-foreground">
               {user.headline || `@${user.handle}`}
             </p>
             {user.institution && (
-              <p className="truncate text-xs text-white/45">{user.institution}</p>
+              <p className="truncate text-[12px] text-muted-foreground">
+                {user.institution}
+              </p>
             )}
           </div>
           <button
             onClick={() => handleFollow(user.id)}
             disabled={isPending}
-            className="shrink-0 rounded-xl border border-[#2FA4D7]/20 bg-[#2FA4D7]/[0.06] px-4 py-2 text-xs font-bold text-[#2FA4D7]/85 hover:bg-[#2FA4D7]/10 hover:text-[#2FA4D7] transition-all duration-300 active:scale-95 disabled:opacity-60"
+            className="btn-secondary press disabled:opacity-50"
           >
             Subscribe
           </button>

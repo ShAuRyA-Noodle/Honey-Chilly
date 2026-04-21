@@ -2,7 +2,6 @@
 
 import { ReactionType } from "@/models/reaction.model";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 const REACTION_EMOJI: Record<ReactionType, string> = {
   fire: "\u{1F525}",
@@ -43,58 +42,43 @@ export function ReactionPicker({
         type="button"
         onClick={() => onReact(currentReaction || "heart")}
         disabled={disabled}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-300 active:scale-95 ${
+        className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-all press ${
           currentReaction
-            ? "text-[#2FA4D7] bg-[#2FA4D7]/[0.08]"
-            : "text-white/55 hover:bg-white/[0.04] hover:text-white/70"
+            ? "text-primary bg-primary/[0.08]"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
         }`}
       >
-        <span className="text-lg">
-          {currentReaction ? REACTION_EMOJI[currentReaction] : REACTION_EMOJI.heart}
+        <span className="text-base">
+          {currentReaction
+            ? REACTION_EMOJI[currentReaction]
+            : REACTION_EMOJI.heart}
         </span>
-        {currentReaction ? REACTION_LABELS[currentReaction] : "React"}
+        <span className="hidden sm:inline">
+          {currentReaction ? REACTION_LABELS[currentReaction] : "React"}
+        </span>
       </button>
 
-      <AnimatePresence>
-        {showPicker && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: -45, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute bottom-full left-0 z-50 mb-2 flex gap-1 rounded-2xl border border-white/[0.12] bg-white/[0.1] px-2.5 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-sm"
-          >
-            {(Object.keys(REACTION_EMOJI) as ReactionType[]).map((type, i) => (
-              <motion.button
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 500,
-                  damping: 15,
-                  delay: i * 0.04,
-                }}
-                key={type}
-                type="button"
-                onClick={() => {
-                  onReact(type);
-                  setShowPicker(false);
-                }}
-                disabled={disabled}
-                title={REACTION_LABELS[type]}
-                whileHover={{ scale: 1.3, originY: 0.5 }}
-                className={`flex h-10 w-10 items-center justify-center rounded-full text-2xl transition-all duration-200 ${
-                  currentReaction === type
-                    ? "bg-white/[0.12] ring-2 ring-[#2FA4D7]/30 shadow-[0_0_15px_rgba(47,164,215,0.2)]"
-                    : "hover:bg-white/[0.09]"
-                }`}
-              >
-                {REACTION_EMOJI[type]}
-              </motion.button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showPicker && (
+        <div className="absolute bottom-full left-0 z-50 mb-2 flex gap-0.5 rounded-xl border border-border bg-card px-1.5 py-1.5 shadow-xl animate-fade-up">
+          {(Object.keys(REACTION_EMOJI) as ReactionType[]).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => {
+                onReact(type);
+                setShowPicker(false);
+              }}
+              disabled={disabled}
+              title={REACTION_LABELS[type]}
+              className={`grid h-9 w-9 place-items-center rounded-lg text-xl transition-all duration-150 ease-apple hover:scale-[1.2] hover:bg-muted press ${
+                currentReaction === type ? "bg-primary/[0.08]" : ""
+              }`}
+            >
+              {REACTION_EMOJI[type]}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

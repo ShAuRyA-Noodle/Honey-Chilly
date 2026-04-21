@@ -12,6 +12,8 @@ import { extractHashtags, extractMentions } from "@/lib/hashtags";
 import { Hashtag } from "@/models/hashtag.model";
 import { createNotification } from "./notifications";
 import { User } from "@/models/user.model";
+import { checkContent } from "@/lib/moderation/proofguard";
+import { getPostingEligibility, issueStrike } from "./moderation";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -354,6 +356,38 @@ export async function createPostAction(input: {
     throw new Error("Add text, an image, a video, or a poll before posting.");
   }
 
+  // Gate: is user allowed to post? (ban / restriction check)
+  const eligibility = await getPostingEligibility();
+  if (!eligibility.canPost) {
+    await destroyMedia(media);
+    throw new Error(eligibility.reason || "You cannot post right now.");
+  }
+
+  // ProofGuard safety check
+  const moderation = await checkContent({
+    text: body,
+    media: media.map((m) => ({
+      type: m.type,
+      url: m.url,
+      publicId: m.publicId,
+    })),
+  });
+
+  if (moderation.decision === "block") {
+    await destroyMedia(media);
+    // Issue auto-warning strike for severe violations (repeat => ban)
+    const severe = moderation.violations.some((v) => v.severity === 3);
+    if (severe) {
+      await issueStrike(viewer.id, "minor", "auto_moderation", {
+        reason: `ProofGuard auto-block: ${moderation.categories.join(", ")}.`,
+        categories: moderation.categories,
+      });
+    }
+    throw new Error(
+      `Post blocked by ProofGuard — ${moderation.summary} If you believe this is an error, contact support.`
+    );
+  }
+
   const hashtags = extractHashtags(body);
   const mentions = extractMentions(body);
 
@@ -369,6 +403,15 @@ export async function createPostAction(input: {
       hashtags,
       mentions,
       ...(pollData ? { poll: pollData } : {}),
+      moderation: {
+        decision: moderation.decision,
+        score: moderation.score,
+        categories: moderation.categories,
+        checkedAt: new Date(moderation.checkedAt),
+        stages: moderation.stageResults,
+      },
+      isHidden: false,
+      reportCount: 0,
       schemaVersion: 2,
     });
   } catch (error) {
@@ -749,7 +792,10 @@ export async function getFeedPosts(
   const viewer = await requireOnboardedUserProfile();
   await connectDB();
 
-  const filter: Record<string, unknown> = { schemaVersion: 2 };
+  const filter: Record<string, unknown> = {
+    schemaVersion: 2,
+    $or: [{ isHidden: { $exists: false } }, { isHidden: false }],
+  };
   if (cursor) {
     filter.createdAt = { $lt: new Date(cursor) };
   }
@@ -785,6 +831,29 @@ export async function getFeedPosts(
   };
 }
 
+export async function getPostById(postId: string): Promise<PostDTO | null> {
+  if (!Types.ObjectId.isValid(postId)) return null;
+  const viewer = await requireOnboardedUserProfile();
+  await connectDB();
+
+  const post = await Post.findOne({
+    _id: postId,
+    schemaVersion: 2,
+    $or: [{ isHidden: { $exists: false } }, { isHidden: false }],
+  })
+    .populate("author")
+    .populate({ path: "repostOf", populate: { path: "author" } });
+
+  if (!post) return null;
+
+  const [viewerReactions, commentsByPostId] = await Promise.all([
+    getViewerReactions([post._id], viewer.id),
+    getCommentsByPostId([post._id]),
+  ]);
+
+  return serializePost(post, viewer.id, viewerReactions, commentsByPostId);
+}
+
 export async function getProfilePosts(userId: string): Promise<PostDTO[]> {
   const viewer = await requireOnboardedUserProfile();
   await connectDB();
@@ -792,6 +861,7 @@ export async function getProfilePosts(userId: string): Promise<PostDTO[]> {
   const posts = await Post.find({
     author: new Types.ObjectId(userId),
     schemaVersion: 2,
+    $or: [{ isHidden: { $exists: false } }, { isHidden: false }],
   })
     .sort({ createdAt: -1 })
     .limit(30)

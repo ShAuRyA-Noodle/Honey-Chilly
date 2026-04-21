@@ -1,343 +1,287 @@
 "use client";
 
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, ChevronRight, Code2, Globe2, Sparkles, Zap, Shield, Layers } from "lucide-react";
-import { useRef, useState } from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Code2,
+  Globe2,
+  Zap,
+  Shield,
+  Layers,
+  Sparkles,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-function MagneticButton({ children, className, href }: { children: React.ReactNode; className?: string; href: string }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+/* === FADE-IN ON SCROLL (IntersectionObserver — no heavy lib) === */
+function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [visible, setVisible] = useState(false);
 
-  const handleMouse = (e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { left, top, width, height } = ref.current!.getBoundingClientRect();
-    const x = (clientX - (left + width / 2)) * 0.15;
-    const y = (clientY - (top + height / 2)) * 0.15;
-    setPosition({ x, y });
-  };
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "-50px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  const handleMouseLeave = () => setPosition({ x: 0, y: 0 });
-
-  return (
-    <motion.div
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15 }}
-    >
-      <Link
-        ref={ref}
-        href={href}
-        onMouseMove={handleMouse}
-        onMouseLeave={handleMouseLeave}
-        className={className}
-      >
-        {children}
-      </Link>
-    </motion.div>
-  );
+  return { ref, visible };
 }
 
-function FloatingCard({ icon: Icon, title, description, color, delay }: {
-  icon: typeof Code2; title: string; description: string; color: string; delay: number;
+/* === FEATURE CARD === */
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  delay = 0,
+}: {
+  icon: typeof Code2;
+  title: string;
+  description: string;
+  delay?: number;
 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  const colorMap: Record<string, { border: string; glow: string; text: string; bg: string }> = {
-    cyan: { border: "hover:border-[#2FA4D7]/30", glow: "group-hover:shadow-[0_0_60px_rgba(47,164,215,0.15)]", text: "text-[#2FA4D7]", bg: "bg-[#2FA4D7]/10" },
-    orange: { border: "hover:border-orange-500/30", glow: "group-hover:shadow-[0_0_60px_rgba(231,111,46,0.15)]", text: "text-orange-400", bg: "bg-orange-500/10" },
-    amber: { border: "hover:border-amber-500/30", glow: "group-hover:shadow-[0_0_60px_rgba(245,158,11,0.15)]", text: "text-amber-400", bg: "bg-amber-500/10" },
-    blue: { border: "hover:border-blue-500/30", glow: "group-hover:shadow-[0_0_60px_rgba(59,130,246,0.15)]", text: "text-blue-400", bg: "bg-blue-500/10" },
-    green: { border: "hover:border-green-500/30", glow: "group-hover:shadow-[0_0_60px_rgba(16,185,129,0.15)]", text: "text-green-400", bg: "bg-green-500/10" },
-  };
-
-  const c = colorMap[color] || colorMap.cyan;
-
+  const { ref, visible } = useReveal<HTMLDivElement>();
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 60, rotateX: 15 }}
-      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative glass-panel rounded-3xl p-8 ${c.border} ${c.glow} transition-all duration-700 cursor-default overflow-hidden`}
-      style={{ perspective: "1000px" }}
+      style={{
+        transitionDelay: `${delay}ms`,
+        transform: visible ? "translateY(0)" : "translateY(24px)",
+        opacity: visible ? 1 : 0,
+      }}
+      className="surface-elevated group p-6 transition-all duration-700 ease-apple hover:border-primary/30"
     >
-      {/* Subtle gradient overlay on hover */}
-      <div className={`absolute inset-0 ${c.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-3xl`} />
-
-      <div className="relative z-10">
-        <div className={`inline-flex p-3 rounded-2xl ${c.bg} mb-5`}>
-          <Icon size={28} className={`${c.text} transition-all duration-500 group-hover:scale-110`} />
-        </div>
-        <h3 className="font-display text-lg font-bold text-white mb-2">{title}</h3>
-        <p className="text-sm leading-relaxed text-white/40 group-hover:text-white/60 transition-colors duration-500">{description}</p>
+      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary mb-4 transition-transform duration-500 ease-apple group-hover:scale-105">
+        <Icon size={18} strokeWidth={2} />
       </div>
-
-      {/* Bottom accent line */}
-      <div className={`absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${c.text.replace('text-', 'via-')}/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
-    </motion.div>
-  );
-}
-
-function StatCounter({ value, label, delay }: { value: string; label: string; delay: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="text-center"
-    >
-      <div className="font-display text-4xl md:text-5xl font-bold gradient-text-primary mb-1">{value}</div>
-      <div className="text-xs uppercase tracking-[0.2em] text-white/30 font-medium">{label}</div>
-    </motion.div>
+      <h3 className="text-[15.5px] font-semibold text-foreground mb-1.5 tracking-tight">
+        {title}
+      </h3>
+      <p className="text-[13.5px] leading-relaxed text-muted-foreground">
+        {description}
+      </p>
+    </div>
   );
 }
 
 export default function LandingHero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
-
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden">
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4">
-        <motion.div style={{ opacity, scale }} className="z-10 flex flex-col items-center text-center max-w-6xl mx-auto">
-          {/* Top Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-8"
-          >
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2FA4D7] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2FA4D7]" />
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-                Now Live — Join the Builders
-              </span>
-            </div>
-          </motion.div>
-
-          {/* Main Headline with stagger */}
-          <div className="overflow-hidden">
-            <motion.h1
-              initial={{ opacity: 0, y: 80 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-bold tracking-tight leading-[0.9]"
-            >
-              <span className="text-white">Where Builders</span>
-              <br />
-              <span className="relative">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2FA4D7] via-[#4DB8E0] to-[#E76F2E] bg-[length:200%_auto] animate-gradient-shift">
-                  Prove Their Work
-                </span>
-              </span>
-            </motion.h1>
+    <div className="relative w-full overflow-hidden">
+      {/* ========== HERO ========== */}
+      <section className="relative flex min-h-[88vh] items-center justify-center px-4 pt-20 pb-16">
+        <div className="relative z-10 w-full max-w-5xl text-center">
+          {/* Status badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground animate-fade-up shadow-sm">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+            </span>
+            <span>Now live — join the builders</span>
           </div>
 
+          {/* Headline — editorial-tight, Geist, text-wrap balance */}
+          <h1
+            className="mt-6 text-[44px] sm:text-[64px] md:text-[80px] lg:text-[96px] font-semibold tracking-tight-display leading-[0.95] text-foreground animate-fade-up"
+            style={{
+              textWrap: "balance",
+              animationDelay: "80ms",
+              animationFillMode: "both",
+            }}
+          >
+            Where builders prove
+            <br />
+            <span className="text-primary">their real work.</span>
+          </h1>
+
           {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-            className="mt-8 max-w-2xl text-lg md:text-xl text-white/50 leading-relaxed"
+          <p
+            className="mt-6 mx-auto max-w-[560px] text-[17px] sm:text-[18px] leading-relaxed text-muted-foreground animate-fade-up"
+            style={{
+              textWrap: "balance",
+              animationDelay: "160ms",
+              animationFillMode: "both",
+            }}
           >
-            The professional network for engineers, designers, and visionaries
-            who let their work speak louder than their resume.
-          </motion.p>
-
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7, ease: "easeOut" }}
-            className="mt-12 flex flex-col sm:flex-row gap-5 w-full sm:w-auto"
-          >
-            <MagneticButton
-              href="/sign-up"
-              className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-[#2FA4D7] to-[#E76F2E] px-8 py-4 font-display font-bold text-white shadow-[0_0_30px_rgba(47,164,215,0.25)] transition-all duration-300 hover:shadow-[0_0_50px_rgba(47,164,215,0.4)] active:scale-[0.97]"
-            >
-              <span className="relative z-10 text-base tracking-wide">Get Started</span>
-              <ArrowRight className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" size={18} />
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-            </MagneticButton>
-
-            <MagneticButton
-              href="/sign-in"
-              className="group flex items-center justify-center gap-3 rounded-xl border border-white/[0.12] bg-white/[0.05] px-8 py-4 font-display font-bold text-white/80 transition-all duration-300 hover:bg-white/[0.09] hover:border-white/[0.2] hover:text-white active:scale-[0.97]"
-            >
-              <span className="text-base tracking-wide">Sign In</span>
-              <ChevronRight className="transition-transform duration-300 group-hover:translate-x-1" size={18} />
-            </MagneticButton>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.2 }}
-            className="mt-20 flex items-center gap-12 md:gap-20"
-          >
-            <StatCounter value="10K+" label="Builders" delay={1.3} />
-            <div className="h-8 w-px bg-white/[0.08]" />
-            <StatCounter value="50K+" label="Projects" delay={1.5} />
-            <div className="h-8 w-px bg-white/[0.08]" />
-            <StatCounter value="99%" label="Satisfaction" delay={1.7} />
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="flex flex-col items-center gap-2"
-          >
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-medium">Scroll</span>
-            <div className="w-5 h-8 rounded-full border border-white/[0.1] flex items-start justify-center p-1.5">
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="w-1 h-1.5 rounded-full bg-white/30"
-              />
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ===== FEATURES SECTION ===== */}
-      <section className="relative py-32 px-4">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20 max-w-3xl mx-auto"
-        >
-          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-[#2FA4D7]/60 mb-4 block">Why Vibely</span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-            Built Different, <span className="gradient-text-primary">By Design</span>
-          </h2>
-          <p className="text-lg text-white/30 leading-relaxed">
-            Not another LinkedIn clone. Vibely is purpose-built for people who ship code, design pixels, and build the future.
+            The professional network for engineers, designers, and founders who
+            let their work speak louder than their resume.
           </p>
-        </motion.div>
 
-        {/* Feature cards grid */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <FloatingCard
-            icon={Code2}
-            title="Proof of Work"
-            description="Your code, your commits, your shipped products. Share deep technical progress that proves you build, not just talk."
-            color="cyan"
-            delay={0}
+          {/* CTAs */}
+          <div
+            className="mt-10 flex flex-col sm:flex-row gap-3 justify-center animate-fade-up"
+            style={{ animationDelay: "240ms", animationFillMode: "both" }}
+          >
+            <Link
+              href="/sign-up"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-[15px] font-medium text-primary-foreground shadow-[0_1px_2px_rgba(47,164,215,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] hover:shadow-[0_4px_14px_rgba(47,164,215,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] transition-all duration-200 ease-apple press"
+            >
+              Get started
+              <ArrowRight
+                size={16}
+                strokeWidth={2.5}
+                className="transition-transform duration-300 ease-apple group-hover:translate-x-0.5"
+              />
+            </Link>
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-[15px] font-medium text-foreground hover:bg-muted hover:border-foreground/20 transition-all duration-200 ease-apple press"
+            >
+              Sign in
+              <ArrowUpRight
+                size={16}
+                strokeWidth={2.5}
+                className="transition-transform duration-300 ease-apple group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </Link>
+          </div>
 
-          />
-          <FloatingCard
-            icon={Globe2}
-            title="Global Builder Network"
-            description="Connect with the top 1% of engineers, designers, and founders. Quality over quantity, always."
-            color="orange"
-            delay={0.1}
-
-          />
-          <FloatingCard
-            icon={Sparkles}
-            title="Smart Matching"
-            description="AI-powered suggestions that connect you with builders working on complementary problems and technologies."
-            color="amber"
-            delay={0.2}
-
-          />
-          <FloatingCard
-            icon={Zap}
-            title="Real-time Collaboration"
-            description="Instant messaging, threaded discussions, and live reactions. Built for the speed builders operate at."
-            color="amber"
-            delay={0.1}
-
-          />
-          <FloatingCard
-            icon={Shield}
-            title="Privacy First"
-            description="Your data, your rules. No ads, no tracking, no selling your professional graph to recruiters."
-            color="green"
-            delay={0.2}
-
-          />
-          <FloatingCard
-            icon={Layers}
-            title="Rich Profiles"
-            description="Education, experience, skills, and project portfolios. Everything a builder needs to showcase their journey."
-            color="blue"
-            delay={0.3}
-
-          />
+          {/* Trust row */}
+          <div
+            className="mt-16 flex items-center justify-center gap-8 text-muted-foreground animate-fade-up"
+            style={{ animationDelay: "400ms", animationFillMode: "both" }}
+          >
+            <div className="text-center">
+              <div className="text-[22px] font-semibold text-foreground tabular-nums tracking-tight">
+                10K+
+              </div>
+              <div className="text-[11px] uppercase tracking-wider font-medium">
+                Builders
+              </div>
+            </div>
+            <div className="h-8 w-px bg-border" />
+            <div className="text-center">
+              <div className="text-[22px] font-semibold text-foreground tabular-nums tracking-tight">
+                50K+
+              </div>
+              <div className="text-[11px] uppercase tracking-wider font-medium">
+                Projects
+              </div>
+            </div>
+            <div className="h-8 w-px bg-border" />
+            <div className="text-center">
+              <div className="text-[22px] font-semibold text-foreground tabular-nums tracking-tight">
+                99%
+              </div>
+              <div className="text-[11px] uppercase tracking-wider font-medium">
+                Satisfied
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ===== CTA SECTION ===== */}
-      <section className="relative py-32 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center"
-        >
-          <div className="relative glass-panel-strong rounded-[2rem] p-12 md:p-20 overflow-hidden">
-            {/* Background glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[200px] bg-gradient-to-r from-[#2FA4D7]/20 via-[#E76F2E]/20 to-[#F5E9D8]/20 blur-3xl rounded-full" />
-
-            <h2 className="relative z-10 font-display text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Ready to prove <br className="hidden md:block" />
-              <span className="gradient-text-primary">what you&apos;ve built?</span>
+      {/* ========== FEATURES ========== */}
+      <section className="relative py-24 md:py-32 px-4">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-2xl mb-16">
+            <p className="text-[13px] font-medium text-primary tracking-wide uppercase mb-3">
+              Why Vibely
+            </p>
+            <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight-display text-foreground leading-[1.05]">
+              Built for people
+              <br />
+              who ship.
             </h2>
-            <p className="relative z-10 text-lg text-white/50 mb-10 max-w-xl mx-auto">
-              Join thousands of builders who are already sharing their work, growing their network, and landing opportunities.
+            <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground max-w-[520px]">
+              Not another LinkedIn clone. Purpose-built for the Gen-Z builders
+              writing code, designing products, and moving fast.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FeatureCard
+              icon={Code2}
+              title="Proof of work"
+              description="Your code, your commits, your shipped products. Share deep technical progress that proves you build."
+              delay={0}
+            />
+            <FeatureCard
+              icon={Globe2}
+              title="Global network"
+              description="Connect with the top 1% of engineers, designers, and founders. Quality over quantity."
+              delay={60}
+            />
+            <FeatureCard
+              icon={Sparkles}
+              title="Smart matching"
+              description="AI-powered suggestions connecting you with builders working on complementary problems."
+              delay={120}
+            />
+            <FeatureCard
+              icon={Zap}
+              title="Real-time collab"
+              description="Instant messaging, threaded discussions, and live reactions. Built for builder-speed."
+              delay={60}
+            />
+            <FeatureCard
+              icon={Shield}
+              title="Privacy first"
+              description="Your data, your rules. No ads, no tracking, no selling your graph to recruiters."
+              delay={120}
+            />
+            <FeatureCard
+              icon={Layers}
+              title="Rich profiles"
+              description="Education, experience, skills, and project portfolios. Everything to showcase your journey."
+              delay={180}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ========== CTA ========== */}
+      <section className="relative py-24 md:py-32 px-4">
+        <div className="mx-auto max-w-3xl">
+          <div className="surface-elevated relative overflow-hidden p-10 md:p-16 text-center">
+            {/* Subtle glow background */}
+            <div
+              aria-hidden
+              className="absolute inset-0 opacity-60"
+              style={{
+                background:
+                  "radial-gradient(ellipse 60% 60% at 50% 0%, hsl(var(--primary) / 0.08) 0%, transparent 60%)",
+              }}
+            />
+
+            <h2 className="relative text-[32px] md:text-[44px] font-semibold tracking-tight-display text-foreground leading-[1.1]">
+              Ready to prove
+              <br />
+              what you&apos;ve built?
+            </h2>
+            <p className="relative mt-4 text-[16px] leading-relaxed text-muted-foreground max-w-md mx-auto">
+              Join thousands of builders sharing their work, growing their
+              network, and landing opportunities.
             </p>
 
-            <motion.div className="relative z-10">
-              <MagneticButton
+            <div className="relative mt-8">
+              <Link
                 href="/sign-up"
-                className="group inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#2FA4D7] to-[#E76F2E] px-10 py-5 font-display text-lg font-bold text-white shadow-[0_0_30px_rgba(47,164,215,0.25)] transition-all duration-300 hover:shadow-[0_0_50px_rgba(47,164,215,0.4)] active:scale-[0.97]"
+                className="group inline-flex items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-[15px] font-medium text-primary-foreground shadow-[0_1px_2px_rgba(47,164,215,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] hover:shadow-[0_4px_14px_rgba(47,164,215,0.3),inset_0_1px_0_rgba(255,255,255,0.12)] transition-all duration-200 ease-apple press"
               >
-                <span>Start Building Your Profile</span>
-                <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" size={20} />
-              </MagneticButton>
-            </motion.div>
+                Start building your profile
+                <ArrowRight
+                  size={16}
+                  strokeWidth={2.5}
+                  className="transition-transform duration-300 ease-apple group-hover:translate-x-0.5"
+                />
+              </Link>
+              <p className="mt-4 text-xs text-muted-foreground">
+                Free forever for builders. No credit card required.
+              </p>
+            </div>
           </div>
-        </motion.div>
-
-        {/* Footer note */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="text-center mt-12 text-sm text-white/15"
-        >
-          Free forever for builders. No credit card required.
-        </motion.p>
+        </div>
       </section>
     </div>
   );

@@ -72,11 +72,14 @@ export default function MessageThread({
   }
 
   return (
-    <div className="flex flex-col glass-panel rounded-2xl overflow-hidden">
-      <div className="flex-1 overflow-y-auto p-5 space-y-3" style={{ maxHeight: "60vh", minHeight: "300px" }}>
+    <div className="flex flex-col surface-elevated overflow-hidden">
+      <div
+        className="flex-1 overflow-y-auto p-5 space-y-2"
+        style={{ maxHeight: "60vh", minHeight: "300px" }}
+      >
         {messages.length === 0 && (
-          <p className="text-center text-sm text-white/45 py-10">
-            Start the conversation with {otherUser.name}!
+          <p className="text-center text-[13px] text-muted-foreground py-10">
+            Start the conversation with {otherUser.name}
           </p>
         )}
         {messages.map((msg) => {
@@ -87,16 +90,18 @@ export default function MessageThread({
               className={`flex ${isMine ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[75%] rounded-2xl px-4 py-2.5 transition-all duration-300 ${
+                className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${
                   isMine
-                    ? "bg-gradient-to-r from-[#2FA4D7]/90 to-[#2587B5]/90 text-black rounded-br-md shadow-[0_4px_15px_rgba(47,164,215,0.2)]"
-                    : "bg-white/[0.09] text-foreground rounded-bl-md border border-white/[0.08]"
+                    ? "bg-primary text-primary-foreground rounded-br-md"
+                    : "bg-muted text-foreground rounded-bl-md"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.body}</p>
+                <p className="text-[14px] whitespace-pre-wrap leading-snug">
+                  {msg.body}
+                </p>
                 <p
-                  className={`mt-1 text-[10px] ${
-                    isMine ? "text-black/40" : "text-white/45"
+                  className={`mt-0.5 text-[10px] tabular-nums ${
+                    isMine ? "text-primary-foreground/60" : "text-muted-foreground"
                   }`}
                 >
                   {formatTime(msg.createdAt)}
@@ -110,21 +115,21 @@ export default function MessageThread({
 
       <form
         onSubmit={onSubmit}
-        className="flex items-center gap-2 border-t border-white/[0.08] p-4"
+        className="flex items-center gap-2 border-t border-border p-3"
       >
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={2000}
-          placeholder="Type a message..."
-          className="glass-input min-w-0 flex-1"
+          placeholder="Type a message…"
+          className="input-base flex-1"
         />
         <button
           type="submit"
           disabled={isPending || !text.trim()}
-          className="rounded-xl bg-gradient-to-r from-[#2FA4D7] to-[#2587B5] p-2.5 text-black transition-all duration-300 hover:shadow-[0_0_15px_rgba(47,164,215,0.3)] active:scale-95 disabled:opacity-40"
+          className="grid h-10 w-10 place-items-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 press disabled:opacity-40 transition-all"
         >
-          <Send size={18} />
+          <Send size={15} strokeWidth={2} />
         </button>
       </form>
     </div>

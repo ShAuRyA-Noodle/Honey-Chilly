@@ -35,7 +35,10 @@ function NotificationItem({ notification }: { notification: NotificationDTO }) {
         router.push("/feed");
       } else if (notification.type === "follow") {
         router.push(`/profile/${notification.actor.handle}`);
-      } else if (notification.type === "connection_request" || notification.type === "connection_accept") {
+      } else if (
+        notification.type === "connection_request" ||
+        notification.type === "connection_accept"
+      ) {
         router.push("/connections");
       }
       router.refresh();
@@ -47,8 +50,8 @@ function NotificationItem({ notification }: { notification: NotificationDTO }) {
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className={`flex w-full items-start gap-3 rounded-xl p-4 text-left transition-all duration-300 hover:bg-white/[0.03] ${
-        !notification.read ? "border-l-2 border-[#2FA4D7] bg-[#2FA4D7]/[0.03]" : ""
+      className={`flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted press ${
+        !notification.read ? "bg-primary/[0.03]" : ""
       }`}
     >
       <ProfilePhoto
@@ -57,16 +60,18 @@ function NotificationItem({ notification }: { notification: NotificationDTO }) {
         size="sm"
       />
       <div className="min-w-0 flex-1">
-        <p className="text-sm text-white/80">
-          <span className="font-bold text-foreground">{notification.actor.name}</span>{" "}
+        <p className="text-[13.5px] text-foreground/90">
+          <span className="font-semibold text-foreground">
+            {notification.actor.name}
+          </span>{" "}
           {ACTION_TEXT[notification.type] || "interacted with your content"}
         </p>
-        <p className="text-xs text-white/45 mt-0.5">
+        <p className="text-xs text-muted-foreground tabular-nums">
           <ReactTimeago date={new Date(notification.createdAt)} />
         </p>
       </div>
       {!notification.read && (
-        <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#2FA4D7] shadow-[0_0_8px_rgba(47,164,215,0.5)]" />
+        <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />
       )}
     </button>
   );
@@ -94,8 +99,8 @@ export default function NotificationList({
 
   if (initialFeed.notifications.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-10 text-center">
-        <p className="text-sm text-white/50">No notifications yet.</p>
+      <div className="surface-elevated p-8 text-center">
+        <p className="text-[13px] text-muted-foreground">No notifications yet.</p>
       </div>
     );
   }
@@ -106,12 +111,12 @@ export default function NotificationList({
         <button
           onClick={markAllRead}
           disabled={isPending}
-          className="text-xs font-semibold text-[#2FA4D7]/80 hover:text-[#2FA4D7] transition-colors duration-300 disabled:opacity-60"
+          className="text-[12px] font-medium text-primary hover:underline disabled:opacity-60"
         >
           Mark all as read
         </button>
       </div>
-      <div className="glass-panel rounded-2xl divide-y divide-white/[0.08] overflow-hidden">
+      <div className="surface-elevated overflow-hidden divide-y divide-border">
         {initialFeed.notifications.map((n) => (
           <NotificationItem key={n.id} notification={n} />
         ))}

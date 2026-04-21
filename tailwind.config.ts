@@ -7,12 +7,12 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1.5rem",
       screens: {
         "2xl": "1400px",
       },
@@ -54,17 +54,24 @@ const config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-geist-sans)', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+        display: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }],
+      },
+      letterSpacing: {
+        'tightest': '-0.05em',
+        'tight-display': '-0.035em',
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      backdropBlur: {
-        '3xl': '64px',
-        '4xl': '100px',
+      transitionTimingFunction: {
+        'apple': 'cubic-bezier(0.32, 0.72, 0, 1)',
       },
       keyframes: {
         "accordion-down": {
@@ -75,69 +82,20 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "gradient-shift": {
-          "0%, 100%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
-        "shimmer": {
-          "100%": { transform: "translateX(100%)" },
-        },
-        "float": {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        "float-slow": {
-          "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
-          "33%": { transform: "translateY(-15px) rotate(1deg)" },
-          "66%": { transform: "translateY(8px) rotate(-1deg)" },
-        },
-        "pulse-glow": {
-          "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
-          "50%": { opacity: "0.7", transform: "scale(1.05)" },
-        },
-        "morph": {
-          "0%, 100%": { borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%" },
-          "25%": { borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%" },
-          "50%": { borderRadius: "50% 60% 30% 60% / 30% 60% 70% 40%" },
-          "75%": { borderRadius: "60% 40% 60% 30% / 60% 40% 30% 60%" },
-        },
-        "slide-up": {
-          "0%": { opacity: "0", transform: "translateY(30px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "scale-in": {
-          "0%": { opacity: "0", transform: "scale(0.9)" },
-          "100%": { opacity: "1", transform: "scale(1)" },
-        },
-        "spin-slow": {
-          "0%": { transform: "rotate(0deg)" },
-          "100%": { transform: "rotate(360deg)" },
-        },
-        "beam": {
-          "0%": { transform: "translateX(-100%)", opacity: "0" },
-          "50%": { opacity: "1" },
-          "100%": { transform: "translateX(100%)", opacity: "0" },
-        },
-        "text-shimmer": {
-          "0%": { backgroundPosition: "-200% center" },
-          "100%": { backgroundPosition: "200% center" },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "gradient-shift": "gradient-shift 6s ease infinite",
-        "shimmer": "shimmer 2s infinite",
-        "float": "float 6s ease-in-out infinite",
-        "float-slow": "float-slow 8s ease-in-out infinite",
-        "float-delayed": "float-slow 10s ease-in-out 2s infinite",
-        "pulse-glow": "pulse-glow 4s ease-in-out infinite",
-        "morph": "morph 8s ease-in-out infinite",
-        "slide-up": "slide-up 0.6s ease-out",
-        "scale-in": "scale-in 0.5s ease-out",
-        "spin-slow": "spin-slow 20s linear infinite",
-        "beam": "beam 3s ease-in-out infinite",
-        "text-shimmer": "text-shimmer 4s linear infinite",
+        "fade-up": "fade-up 600ms cubic-bezier(0.32, 0.72, 0, 1)",
+        "fade-in": "fade-in 400ms cubic-bezier(0.32, 0.72, 0, 1)",
       },
     },
   },

@@ -1,4 +1,7 @@
-import { completeOnboardingAction, requireUserProfile } from "@/lib/actions/users";
+import {
+  completeOnboardingAction,
+  requireUserProfile,
+} from "@/lib/actions/users";
 import { redirect } from "next/navigation";
 import OnboardingWizard from "@/components/OnboardingWizard";
 
@@ -12,20 +15,18 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <section className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center overflow-hidden px-4 py-10">
-      {/* Background Graphic */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center mix-blend-color-dodge opacity-20">
-        <div className="h-[800px] w-[800px] animate-gradient-shift rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#E76F2E]/40 via-amber-500/10 to-transparent blur-3xl" />
-      </div>
-
+    <section className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-4 py-10">
       <div className="z-10 w-full max-w-xl">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-sm font-black uppercase tracking-[0.2em] text-primary">
+        <div className="mb-8 text-center">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-primary">
             Vibely setup
           </p>
-          <h1 className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-5xl font-black tracking-tighter text-transparent">
-            Welcome to the future.
+          <h1 className="text-[40px] font-semibold tracking-tight text-foreground">
+            Welcome aboard.
           </h1>
+          <p className="mt-2 text-[15px] text-muted-foreground">
+            A few details to get you set up.
+          </p>
         </div>
 
         <OnboardingWizard user={user} action={completeOnboardingAction} />

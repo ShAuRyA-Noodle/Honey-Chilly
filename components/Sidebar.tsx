@@ -3,9 +3,15 @@
 import { ProfileStatsDTO, UserDTO } from "@/lib/actions/users";
 import Link from "next/link";
 import ProfilePhoto from "./shared/ProfilePhoto";
-import { Home, Users, MessageSquare, Compass, Settings } from "lucide-react";
+import {
+  Home,
+  Users,
+  MessageSquare,
+  Compass,
+  Settings,
+  BarChart3,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 
 export default function Sidebar({
   user,
@@ -21,61 +27,66 @@ export default function Sidebar({
     { href: "/search", icon: Compass, label: "Explore" },
     { href: "/connections", icon: Users, label: "Network" },
     { href: "/messages", icon: MessageSquare, label: "Messages" },
+    { href: "/analytics", icon: BarChart3, label: "Analytics" },
     { href: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
-    <aside className="sticky top-28 hidden h-fit w-full flex-col gap-5 md:flex z-10">
-      {/* Profile Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="group relative overflow-hidden rounded-2xl glass-panel hover-lift"
-      >
-        {/* Gradient accent top bar */}
-        <div className="h-1 bg-gradient-to-r from-[#2FA4D7] via-[#E76F2E] to-[#F5E9D8]" />
+    <aside className="sticky top-28 hidden h-fit w-full flex-col gap-4 md:flex z-10">
+      {/* Profile Card — Double-bezel architecture */}
+      <div className="surface-elevated overflow-hidden">
+        {/* Header band — subtle gradient */}
+        <div className="h-16 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent" />
 
-        {/* Banner */}
-        <div className="h-16 bg-gradient-to-br from-[#2FA4D7]/15 via-[#3E2C23]/30 to-[#E76F2E]/10" />
-
-        <div className="-mt-8 flex flex-col items-center px-4 pb-5 text-center relative z-10">
-          <div className="rounded-full p-0.5 bg-gradient-to-br from-[#2FA4D7] to-[#E76F2E]">
-            <div className="rounded-full bg-[hsl(20,15%,11%)] p-1">
-              <ProfilePhoto src={user.avatarUrl} name={user.name} size="lg" />
-            </div>
+        <div className="-mt-8 flex flex-col items-center px-5 pb-5 text-center">
+          <div className="rounded-full ring-4 ring-card bg-card">
+            <ProfilePhoto
+              src={user.avatarUrl}
+              name={user.name}
+              size="lg"
+            />
           </div>
           <Link
             href={`/profile/${user.handle}`}
-            className="mt-3 text-base font-bold text-foreground hover:text-[#2FA4D7] transition-colors duration-300"
+            className="mt-3 text-[15px] font-semibold text-foreground hover:text-primary transition-colors"
           >
             {user.name}
           </Link>
-          <p className="mt-0.5 text-xs font-medium text-white/55">
-            {user.headline || "Gen Z Builder"}
+          <p className="mt-0.5 text-[13px] text-muted-foreground">
+            {user.headline || `@${user.handle}`}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 divide-x divide-white/[0.06] border-t border-white/[0.06]" style={{ background: 'rgba(255,255,255,0.02)' }}>
-          <Link href={`/profile/${user.handle}`} className="flex flex-col items-center py-3 hover:bg-white/[0.03] transition-all duration-300">
-            <span className="text-lg font-bold text-foreground">{stats.subscriberCount}</span>
-            <span className="text-[10px] uppercase tracking-widest text-[#2FA4D7]/70 font-semibold">Subscribers</span>
+        {/* Stats strip */}
+        <div className="grid grid-cols-2 border-t border-border bg-muted/50">
+          <Link
+            href={`/profile/${user.handle}`}
+            className="flex flex-col items-center py-3 hover:bg-muted transition-colors"
+          >
+            <span className="text-[15px] font-semibold text-foreground font-mono tabular-nums">
+              {stats.subscriberCount}
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              Subscribers
+            </span>
           </Link>
-          <Link href={`/profile/${user.handle}`} className="flex flex-col items-center py-3 hover:bg-white/[0.03] transition-all duration-300">
-            <span className="text-lg font-bold text-foreground">{stats.postCount}</span>
-            <span className="text-[10px] uppercase tracking-widest text-[#E76F2E]/70 font-semibold">Posts</span>
+          <Link
+            href={`/profile/${user.handle}`}
+            className="flex flex-col items-center py-3 border-l border-border hover:bg-muted transition-colors"
+          >
+            <span className="text-[15px] font-semibold text-foreground font-mono tabular-nums">
+              {stats.postCount}
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              Posts
+            </span>
           </Link>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Navigation Links */}
-      <motion.nav
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="glass-panel rounded-2xl p-2"
-      >
-        <ul className="flex flex-col gap-1">
+      {/* Navigation */}
+      <nav className="surface-elevated p-2">
+        <ul className="flex flex-col gap-0.5">
           {links.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
@@ -84,27 +95,23 @@ export default function Sidebar({
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`group relative flex items-center gap-3.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                  className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium transition-all duration-150 ease-apple press ${
                     isActive
-                      ? "bg-[#2FA4D7]/10 text-[#2FA4D7]"
-                      : "text-white/55 hover:bg-white/[0.04] hover:text-white/80"
+                      ? "bg-primary/[0.08] text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   {isActive && (
-                    <motion.div
-                      layoutId="sidebar-active"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#2FA4D7]"
-                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                    />
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
                   )}
-                  <Icon size={18} />
+                  <Icon size={16} strokeWidth={2} />
                   <span>{link.label}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
-      </motion.nav>
+      </nav>
     </aside>
   );
 }

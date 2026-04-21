@@ -7,15 +7,14 @@ import ReactTimeago from "react-timeago";
 
 export default function ConversationList({
   conversations,
-  viewerId,
 }: {
   conversations: ConversationDTO[];
   viewerId: string;
 }) {
   if (conversations.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-10 text-center">
-        <p className="text-sm text-white/50">
+      <div className="surface-elevated p-8 text-center">
+        <p className="text-[13px] text-muted-foreground">
           No conversations yet. Visit someone&apos;s profile to start a chat.
         </p>
       </div>
@@ -23,12 +22,12 @@ export default function ConversationList({
   }
 
   return (
-    <div className="glass-panel rounded-2xl divide-y divide-white/[0.08] overflow-hidden">
+    <div className="surface-elevated overflow-hidden divide-y divide-border">
       {conversations.map((conv) => (
         <Link
           key={conv.id}
           href={`/messages/${conv.id}`}
-          className="flex items-center gap-3 p-4 hover:bg-white/[0.03] transition-all duration-300"
+          className="flex items-center gap-3 px-4 py-3.5 hover:bg-muted transition-colors press"
         >
           <ProfilePhoto
             src={conv.otherUser.avatarUrl}
@@ -36,19 +35,31 @@ export default function ConversationList({
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <h3 className={`text-sm truncate ${conv.unreadCount > 0 ? "font-bold text-foreground" : "font-medium text-white/70"}`}>
+              <h3
+                className={`text-[14px] truncate ${
+                  conv.unreadCount > 0
+                    ? "font-semibold text-foreground"
+                    : "font-medium text-foreground/90"
+                }`}
+              >
                 {conv.otherUser.name}
               </h3>
-              <span className="shrink-0 text-xs text-white/45">
+              <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
                 <ReactTimeago date={new Date(conv.lastMessageAt)} />
               </span>
             </div>
-            <p className={`truncate text-xs ${conv.unreadCount > 0 ? "font-semibold text-white/70" : "text-white/55"}`}>
+            <p
+              className={`truncate text-[12.5px] ${
+                conv.unreadCount > 0
+                  ? "font-medium text-foreground/90"
+                  : "text-muted-foreground"
+              }`}
+            >
               {conv.lastMessageBody || "No messages yet"}
             </p>
           </div>
           {conv.unreadCount > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#2FA4D7] to-[#2587B5] px-1.5 text-[10px] font-bold text-black">
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground tabular-nums">
               {conv.unreadCount}
             </span>
           )}

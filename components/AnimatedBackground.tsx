@@ -1,16 +1,26 @@
-"use client";
-
+// Zero-JS background — pure CSS, works in both light and dark mode
+// No canvas, no requestAnimationFrame, no performance cost
 export default function AnimatedBackground() {
   return (
-    <div className="fixed inset-0 -z-50 overflow-hidden bg-[hsl(20,20%,5%)]">
+    <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none bg-background">
+      {/* Ambient radial gradient — theme-aware */}
       <div
-        className="absolute inset-0"
+        aria-hidden
+        className="absolute inset-0 opacity-[0.4] dark:opacity-[0.6]"
         style={{
           background: `
-            radial-gradient(ellipse 80% 60% at 15% 20%, rgba(47,164,215,0.04) 0%, transparent 60%),
-            radial-gradient(ellipse 70% 50% at 85% 30%, rgba(231,111,46,0.03) 0%, transparent 55%),
-            radial-gradient(ellipse 60% 60% at 50% 80%, rgba(62,44,35,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse 70% 50% at 20% 0%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 50% at 80% 100%, hsl(var(--primary) / 0.05) 0%, transparent 50%)
           `,
+        }}
+      />
+
+      {/* Subtle grain — only visible in dark mode */}
+      <div
+        aria-hidden
+        className="absolute inset-0 hidden dark:block opacity-[0.015]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`,
         }}
       />
     </div>

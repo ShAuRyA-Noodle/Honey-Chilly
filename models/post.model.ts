@@ -41,6 +41,21 @@ export interface IPost {
     expiresAt?: Date;
     voters: { user: Types.ObjectId; optionIndex: number }[];
   };
+  // Moderation
+  moderation?: {
+    decision: "allow" | "flag" | "block";
+    score: number;
+    categories: string[];
+    checkedAt: Date;
+    stages: {
+      lexical: string;
+      heuristic: string;
+      remote: string;
+      vision: string;
+    };
+  };
+  isHidden: boolean; // hidden while under report review
+  reportCount: number;
   schemaVersion: 2;
 }
 
@@ -158,6 +173,31 @@ const postSchema = new Schema<IPostDocument>(
         ],
       },
       default: undefined,
+    },
+    moderation: {
+      type: {
+        decision: { type: String, enum: ["allow", "flag", "block"] },
+        score: Number,
+        categories: [String],
+        checkedAt: Date,
+        stages: {
+          lexical: String,
+          heuristic: String,
+          remote: String,
+          vision: String,
+        },
+      },
+      default: undefined,
+    },
+    isHidden: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    reportCount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     schemaVersion: {
       type: Number,

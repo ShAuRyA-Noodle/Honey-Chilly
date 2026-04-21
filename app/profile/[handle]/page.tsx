@@ -1,4 +1,4 @@
-import PostList from "@/components/PostList";
+import { ProfilePostsView } from "@/components/PostGrid";
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import EducationSection from "@/components/profile/EducationSection";
@@ -32,13 +32,19 @@ export default async function ProfilePage({
       <ProfileTabs activeTab={activeTab} handle={profile.handle} />
       <div className="mt-6">
         {activeTab === "posts" && (
-          <PostList posts={posts} emptyMessage="No posts here yet." />
+          <ProfilePostsView
+            posts={posts}
+            emptyMessage="No posts here yet."
+          />
         )}
         {activeTab === "education" && (
           <EducationSection items={profile.education} isSelf={profile.isSelf} />
         )}
         {activeTab === "experience" && (
-          <ExperienceSection items={profile.experience} isSelf={profile.isSelf} />
+          <ExperienceSection
+            items={profile.experience}
+            isSelf={profile.isSelf}
+          />
         )}
         {activeTab === "skills" && (
           <SkillsSection items={profile.skills} isSelf={profile.isSelf} />

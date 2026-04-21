@@ -23,7 +23,9 @@ export default async function ConnectionsRoute({
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-8 font-display text-3xl font-bold text-foreground">Network</h1>
+      <h1 className="mb-6 text-[28px] font-semibold tracking-tight text-foreground">
+        Network
+      </h1>
       <ConnectionsPage
         requests={requests}
         connections={connections}

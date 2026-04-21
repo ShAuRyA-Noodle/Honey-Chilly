@@ -16,6 +16,13 @@ export interface IUser {
   institution: string;
   department: string;
   onboardingComplete: boolean;
+  // Moderation
+  role: "user" | "moderator" | "admin";
+  isBanned: boolean;
+  bannedAt?: Date;
+  banReason?: string;
+  strikeCount: number;
+  restrictedUntil?: Date;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -110,6 +117,29 @@ const userSchema = new Schema<IUserDocument>(
       default: false,
       index: true,
     },
+    role: {
+      type: String,
+      enum: ["user", "moderator", "admin"],
+      default: "user",
+      index: true,
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    bannedAt: Date,
+    banReason: {
+      type: String,
+      maxlength: 500,
+      trim: true,
+    },
+    strikeCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    restrictedUntil: Date,
   },
   { timestamps: true }
 );

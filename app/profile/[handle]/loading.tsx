@@ -1,32 +1,23 @@
 export default function ProfileLoading() {
   return (
     <section className="mx-auto max-w-4xl px-4 py-8">
-      {/* Banner + avatar */}
-      <div className="glass-panel rounded-3xl overflow-hidden animate-pulse">
-        <div className="h-64 bg-white/[0.03]" />
+      <div className="surface-elevated overflow-hidden animate-pulse">
+        <div className="h-40 bg-muted" />
         <div className="px-6 pb-6">
-          <div className="-mt-16 flex items-end justify-between">
-            <div className="h-28 w-28 rounded-full bg-white/[0.06] ring-4 ring-background" />
-            <div className="h-10 w-28 rounded-xl bg-white/[0.04]" />
+          <div className="-mt-14 flex items-end justify-between">
+            <div className="h-24 w-24 rounded-full bg-muted ring-4 ring-card" />
+            <div className="h-9 w-28 rounded-lg bg-muted" />
           </div>
-          <div className="mt-4 space-y-3">
-            <div className="h-8 w-48 rounded bg-white/[0.04]" />
-            <div className="h-4 w-36 rounded bg-white/[0.03]" />
-            <div className="h-3 w-64 rounded bg-white/[0.03]" />
+          <div className="mt-4 space-y-2">
+            <div className="h-7 w-48 rounded bg-muted" />
+            <div className="h-3.5 w-36 rounded bg-muted" />
           </div>
-          <div className="mt-8 flex gap-4">
-            <div className="h-16 w-28 rounded-2xl bg-white/[0.03]" />
-            <div className="h-16 w-28 rounded-2xl bg-white/[0.03]" />
-            <div className="h-16 w-28 rounded-2xl bg-white/[0.03]" />
+          <div className="mt-6 flex gap-6">
+            <div className="h-5 w-24 rounded bg-muted" />
+            <div className="h-5 w-24 rounded bg-muted" />
+            <div className="h-5 w-20 rounded bg-muted" />
           </div>
         </div>
-      </div>
-      {/* Tabs */}
-      <div className="mt-6 flex gap-4 border-b border-white/[0.06] pb-3">
-        <div className="h-4 w-14 rounded bg-white/[0.04] animate-pulse" />
-        <div className="h-4 w-20 rounded bg-white/[0.03] animate-pulse" />
-        <div className="h-4 w-20 rounded bg-white/[0.03] animate-pulse" />
-        <div className="h-4 w-14 rounded bg-white/[0.03] animate-pulse" />
       </div>
     </section>
   );
