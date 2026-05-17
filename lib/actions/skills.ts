@@ -46,9 +46,12 @@ export async function addSkillAction(name: string, category: SkillCategory) {
   if (!VALID_CATEGORIES.includes(category))
     throw new Error("Invalid skill category.");
 
+  // Escape regex special chars so user input cannot inject a regex that
+  // matches every row or triggers catastrophic backtracking.
+  const escaped = cleanName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const existing = await Skill.findOne({
     user: new Types.ObjectId(viewer.id),
-    name: { $regex: new RegExp(`^${cleanName}$`, "i") },
+    name: { $regex: new RegExp(`^${escaped}$`, "i") },
   });
   if (existing) throw new Error("You already have this skill.");
 
