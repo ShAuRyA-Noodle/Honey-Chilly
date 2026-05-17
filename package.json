@@ -59,6 +59,7 @@
     "micromatch": "^4.0.8",
     "@babel/runtime": "^7.26.10",
     "path-to-regexp": "^6.3.0",
-    "postcss": "$postcss"
+    "postcss": "$postcss",
+    "@clerk/clerk-react": "^5.61.6"
   }
 }
