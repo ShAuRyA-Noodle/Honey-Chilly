@@ -21,7 +21,7 @@
     "geist": "^1.7.0",
     "lucide-react": "^0.378.0",
     "mongoose": "^8.22.1",
-    "next": "15.5.18",
+    "next": "16.2.6",
     "next-themes": "^0.3.0",
     "react": "^18",
     "react-dom": "^18",
